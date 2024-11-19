@@ -3,7 +3,7 @@
 import { KitchnProvider, Container, Modal } from "kitchn";
 import { useModal } from "kitchn";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Image } from "kitchn";
 
 const Page = () => {
@@ -11,18 +11,26 @@ const Page = () => {
   const [selectedImagePath, setSelectedImagePath] = useState<string | null>(
     null
   );
+  const [isMounted, setIsMounted] = useState(false); // Pour vérifier si le composant est monté côté client
 
   const router = useRouter();
-  const searchParams = useSearchParams();
+
+  // Détecter quand le composant est monté côté client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
-    const imageId = searchParams.get("image");
-    if (imageId) {
-      const imagePath = `/image/image${imageId}.jpeg`;
-      setSelectedImagePath(imagePath);
-      open();
+    if (isMounted) {
+      const params = new URLSearchParams(window.location.search);
+      const imageId = params.get("image");
+      if (imageId) {
+        const imagePath = `/image/image${imageId}.jpeg`;
+        setSelectedImagePath(imagePath);
+        open();
+      }
     }
-  }, [searchParams]);
+  }, [isMounted, open]);
 
   const handleImageClick = (imagePath: string, imageId: string) => {
     setSelectedImagePath(imagePath);
@@ -51,58 +59,62 @@ const Page = () => {
 
   return (
     <KitchnProvider>
-      {images.map((row, rowIndex) => (
-        <Container
-          key={rowIndex}
-          row
-          gap={20}
-          align="center"
-          justify="center"
-          mt={10}
-        >
-          {row.map((image) => (
+      {isMounted && (
+        <>
+          {images.map((row, rowIndex) => (
             <Container
-              key={image.id}
-              onClick={() => handleImageClick(image.src, image.id)}
-              style={{ cursor: "pointer" }}
-              br={50}
-              bw="2px"
-              bs="solid"
-              bc="gray"
+              key={rowIndex}
+              row
+              gap={20}
+              align="center"
+              justify="center"
+              mt={10}
             >
-              <Image
-                br={50}
-                src={image.src}
-                alt={image.alt}
-                width={300}
-                height={300}
-              />
+              {row.map((image) => (
+                <Container
+                  key={image.id}
+                  onClick={() => handleImageClick(image.src, image.id)}
+                  style={{ cursor: "pointer" }}
+                  br={50}
+                  bw="2px"
+                  bs="solid"
+                  bc="gray"
+                >
+                  <Image
+                    br={50}
+                    src={image.src}
+                    alt={image.alt}
+                    width={300}
+                    height={300}
+                  />
+                </Container>
+              ))}
             </Container>
           ))}
-        </Container>
-      ))}
 
-      {/* Modal */}
-      <Modal.Modal active={active} onClickOutside={closeModal}>
-        <Modal.Body>
-          <Modal.Header>
-            <Modal.Title>Selected Image</Modal.Title>
-          </Modal.Header>
-          {selectedImagePath && (
-            <Image
-              src={selectedImagePath}
-              alt="Selected Image"
-              width={300}
-              height={300}
-            />
-          )}
-        </Modal.Body>
-        <Modal.Actions>
-          <Modal.Action type="dark" onClick={closeModal}>
-            Close
-          </Modal.Action>
-        </Modal.Actions>
-      </Modal.Modal>
+          {/* Modal */}
+          <Modal.Modal active={active} onClickOutside={closeModal}>
+            <Modal.Body>
+              <Modal.Header>
+                <Modal.Title>Selected Image</Modal.Title>
+              </Modal.Header>
+              {selectedImagePath && (
+                <Image
+                  src={selectedImagePath}
+                  alt="Selected Image"
+                  width={300}
+                  height={300}
+                />
+              )}
+            </Modal.Body>
+            <Modal.Actions>
+              <Modal.Action type="dark" onClick={closeModal}>
+                Close
+              </Modal.Action>
+            </Modal.Actions>
+          </Modal.Modal>
+        </>
+      )}
     </KitchnProvider>
   );
 };
