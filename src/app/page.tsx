@@ -8,7 +8,9 @@ import { Image } from "kitchn";
 
 const Page = () => {
   const [active, open, close] = useModal();
-  const [selectedImagePath, setSelectedImagePath] = useState<string | null>(null);
+  const [selectedImagePath, setSelectedImagePath] = useState<string | null>(
+    null
+  );
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,7 +18,7 @@ const Page = () => {
   useEffect(() => {
     const imageId = searchParams.get("image");
     if (imageId) {
-      const imagePath = `/image/image${imageId}.jpeg`; // Toutes les images sont en .jpeg
+      const imagePath = `/image/image${imageId}.jpeg`;
       setSelectedImagePath(imagePath);
       open();
     }
@@ -31,117 +33,54 @@ const Page = () => {
   const closeModal = () => {
     close();
     setSelectedImagePath(null);
-    router.push("/"); // Retourne à l'URL sans paramètre
+    router.push("/");
   };
+
+  const images = [
+    [
+      { id: "1", src: "/image/image1.jpeg", alt: "Image 1" },
+      { id: "2", src: "/image/image2.jpeg", alt: "Image 2" },
+      { id: "3", src: "/image/image3.jpeg", alt: "Image 3" },
+    ],
+    [
+      { id: "4", src: "/image/image4.jpeg", alt: "Image 4" },
+      { id: "5", src: "/image/image5.jpeg", alt: "Image 5" },
+      { id: "6", src: "/image/image6.jpeg", alt: "Image 6" },
+    ],
+  ];
 
   return (
     <KitchnProvider>
-      {/* Première ligne de 3 images */}
-      <Container row gap={20} align="center" justify="center" br={50}>
+      {images.map((row, rowIndex) => (
         <Container
-          onClick={() => handleImageClick("/image/image1.jpeg", "1")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="gray"
-        >
-          <Image
-            br={50}
-            src="/image/image1.jpeg"
-            alt="Image 1"
-            width={300}
-            height={300}
-          />
-        </Container>
-        <Container
-          onClick={() => handleImageClick("/image/image2.jpeg", "2")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="black"
-        >
-          <Image
-            br={50}
-            src="/image/image2.jpeg"
-            alt="Image 2"
-            width={300}
-            height={300}
-          />
-        </Container>
-        <Container
-          onClick={() => handleImageClick("/image/image3.jpeg", "3")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="gray"
-        >
-          <Image
-            br={50}
-            src="/image/image3.jpeg"
-            alt="Image 3"
-            width={300}
-            height={300}
-          />
-        </Container>
-      </Container>
-
-      {/* Deuxième ligne de 3 images */}
-      <Container row gap={20} align="center" justify="center">
-        <Container
-          onClick={() => handleImageClick("/image/image4.jpeg", "4")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="black"
+          key={rowIndex}
+          row
+          gap={20}
+          align="center"
+          justify="center"
           mt={10}
         >
-          <Image
-            br={50}
-            src="/image/image4.jpeg"
-            alt="Image 4"
-            width={300}
-            height={300}
-          />
+          {row.map((image) => (
+            <Container
+              key={image.id}
+              onClick={() => handleImageClick(image.src, image.id)}
+              style={{ cursor: "pointer" }}
+              br={50}
+              bw="2px"
+              bs="solid"
+              bc="gray"
+            >
+              <Image
+                br={50}
+                src={image.src}
+                alt={image.alt}
+                width={300}
+                height={300}
+              />
+            </Container>
+          ))}
         </Container>
-        <Container
-          onClick={() => handleImageClick("/image/image5.jpeg", "5")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="black"
-          mt={10}
-        >
-          <Image
-            br={50}
-            src="/image/image5.jpeg"
-            alt="Image 5"
-            width={300}
-            height={300}
-          />
-        </Container>
-        <Container
-          onClick={() => handleImageClick("/image/image6.jpeg", "6")}
-          style={{ cursor: "pointer" }}
-          br={50}
-          bw="2px"
-          bs="solid"
-          bc="black"
-          mt={10}
-        >
-          <Image
-            br={50}
-            src="/image/image6.jpeg"
-            alt="Image 6"
-            width={300}
-            height={300}
-          />
-        </Container>
-      </Container>
+      ))}
 
       {/* Modal */}
       <Modal.Modal active={active} onClickOutside={closeModal}>
